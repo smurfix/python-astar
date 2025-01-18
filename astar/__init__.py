@@ -15,7 +15,7 @@ T = TypeVar("T")
 class SearchNode(Generic[T]):
     """Representation of a search node"""
 
-    __slots__ = ("data", "gscore", "fscore", "closed", "came_from", "in_openset")
+    __slots__ = ("data", "gscore", "fscore", "closed", "came_from", "in_openset", "cache")
 
     def __init__(
         self, data: T, gscore: float = infinity, fscore: float = infinity
@@ -26,6 +26,7 @@ class SearchNode(Generic[T]):
         self.closed = False
         self.in_openset = False
         self.came_from: Union[None, SearchNode[T]] = None
+        self.cache: Any = None
 
     def __lt__(self, b: "SearchNode[T]") -> bool:
         """Natural order is based on the fscore value & is used by heapq operations"""
@@ -69,13 +70,6 @@ class OpenSet(Generic[SNType]):
             heapq._siftup(self.heap, idx)
             heapq._siftdown(self.heap, 0, idx)
 
-        item = self.heap.pop()
-        if idx < len(self.heap):
-            self.heap[idx] = item
-            # Fix heap invariants
-            heapq._siftup(self.heap, idx)
-            heapq._siftdown(self.heap, 0, idx)
-
     def __len__(self) -> int:
         return len(self.heap)
 
@@ -106,7 +100,7 @@ class AStar(ABC, Generic[T]):
         """
         raise NotImplementedError
 
-    def path_distance_between(self, n1: SearchNode[T], n2: T) -> float:
+    def path_distance_between(self, n1: SearchNode[T], n2: SearchNode[T]) -> float:
         """
         Gives the real distance between the node n1 and its neighbor n2.
         n2 is guaranteed to belong to the list returned by the call to
@@ -114,7 +108,7 @@ class AStar(ABC, Generic[T]):
 
         Calls "distance_between"`by default.
         """
-        return self.distance_between(n1.data, n2)
+        return self.distance_between(n1.data, n2.data)
 
     def neighbors(self, node: T) -> Iterable[T]:
         """
@@ -179,9 +173,7 @@ class AStar(ABC, Generic[T]):
                 if neighbor.closed:
                     continue
 
-                gscore = current.gscore + self.path_distance_between(
-                    current, neighbor.data
-                )
+                gscore = current.gscore + self.path_distance_between(current, neighbor)
 
                 if gscore >= neighbor.gscore:
                     continue
