@@ -1,0 +1,22 @@
+Source: astar
+Maintainer: "Matthias Urlichs" <matthias@urlichs.de>
+Section: python
+Priority: optional
+Build-Depends: dh-python, python3-setuptools, python3-all, debhelper (>= 13),
+Standards-Version: 3.9.6
+Homepage: 
+
+Package: python3-astar
+Architecture: all
+Depends: ${misc:Depends}, ${python3:Depends},
+Description: generic A-Star path searching algorithm
+  .. image:: https://badge.fury.io/py/astar.svg
+      :target: https://badge.fury.io/py/astar
+  .
+  .. image:: https://github.com/jrialland/python-astar/actions/workflows/pythonpackage.yml/badge.svg
+      :target: https://github.com/jrialland/python-astar/actions/workflows/pythonpackage.yml
+  .
+  .. image:: https://coveralls.io/repos/github/jrialland/python-astar/badge.svg?branch=master
+      :target: https://coveralls.io/github/jrialland/python-astar?branch=master
+  .
+
